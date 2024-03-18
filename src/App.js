@@ -31,7 +31,17 @@ export default function App() {
     console.log(friend);
   }
   function handleShowSplit(friend) {
-    setShowSplit((friends) => (friends?.id == friend.id ? null : friend));
+    setShowSplit((friends) => (friends?.id === friend.id ? null : friend));
+    setShowFriend(false);
+  }
+  function handleSplit(event) {
+    setFriend((friend) => {
+      return friend.map((frie) => {
+        return frie.id === showSplit.id
+          ? { ...frie, balance: frie.balance + event }
+          : frie;
+      });
+    });
   }
   return (
     <div className="app">
@@ -56,7 +66,9 @@ export default function App() {
           {showFriend ? "Close" : "Add Friend"}
         </Button>
       </div>
-      {showSplit && <FormSplitBill showSplit={showSplit} />}
+      {showSplit && (
+        <FormSplitBill showSplit={showSplit} handleSplit={handleSplit} />
+      )}
     </div>
   );
 }
@@ -153,7 +165,7 @@ function FormAddFriend({ handleFriend }) {
   );
 }
 
-function FormSplitBill({ showSplit }) {
+function FormSplitBill({ showSplit, handleSplit }) {
   const [billValue, setBillValue] = useState(0);
   const [yourExpense, setYourExpense] = useState(0);
   const [option, setOption] = useState("");
@@ -162,7 +174,7 @@ function FormSplitBill({ showSplit }) {
 
   function handleSubmit(event) {
     event.preventDefault();
-    showSplit.balance = friendExpense;
+    handleSplit(option === "user" ? friendExpense : -yourExpense);
   }
   return (
     <form className="form-split-bill" onSubmit={handleSubmit}>
@@ -190,7 +202,7 @@ function FormSplitBill({ showSplit }) {
       <label> 💎Who is paying the bill</label>
       <select value={option} onChange={(e) => setOption(e.target.value)}>
         <option value="user">You</option>
-        <option value="friend">X</option>
+        <option value="friend">{showSplit.name}</option>
       </select>
 
       <Button>Split</Button>
